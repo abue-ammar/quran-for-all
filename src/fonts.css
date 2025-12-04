@@ -1,3 +1,12 @@
+/* Amiri Quran - Arabic font for Quranic text */
+@font-face {
+  font-family: "Amiri Quran";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/fonts/AmiriQuran-Regular.ttf") format("truetype");
+}
+
 @font-face {
   font-family: "Roboto Mono";
   font-style: normal;

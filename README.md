@@ -8,7 +8,7 @@ This project serves as a foundation for building desktop applications with a pro
 
 - **⚡ Tauri Desktop Framework** - Lightweight, secure, and fast desktop app runtime
 - **⚛️ React 19** - Modern UI library with hooks
-- **🎨 Tailwind CSS** - Utility-first CSS framework  
+- **🎨 Tailwind CSS** - Utility-first CSS framework
 - **🌙 Dark/Light Theme** - Built-in theme switching with `next-themes`
 - **🔧 TypeScript** - Full type safety and better DX
 - **📱 Cross-Platform** - macOS, Windows, Linux, and Android support
@@ -179,7 +179,7 @@ import { useAsync, useLocalStorage, useToggle } from "@/hooks/useCommon";
 function MyComponent() {
   const [isOpen, toggle] = useToggle(false);
   const [preferences, setPreferences] = useLocalStorage("prefs", {});
-  
+
   return (
     // Your component
   );
@@ -282,6 +282,7 @@ MIT License - see LICENSE file for details
 ## 🤝 Support
 
 For issues or questions:
+
 1. Check existing documentation
 2. Review Tauri and React documentation
 3. Open an issue with detailed information
