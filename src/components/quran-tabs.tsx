@@ -137,7 +137,7 @@ export default function QuranTabs() {
     return (
       <div className="mx-auto max-w-4xl p-6">
         <Card className="border-destructive bg-destructive/10">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4">
             <p className="text-destructive">{error}</p>
           </CardContent>
         </Card>
@@ -217,10 +217,10 @@ export default function QuranTabs() {
 
         <TabsContent value="juz" className="mt-4">
           <div className="space-y-4">
-            {juzs.map((j) => {
+            {juzs.map((j, juzIndex) => {
               const chapIds = getChapterIdsForJuz(j);
               return (
-                <Card key={j.juz_number} className="py-4">
+                <Card key={`juz-${j.juz_number}-${juzIndex}`} className="py-4">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">
                       Juz {j.juz_number}
@@ -232,7 +232,7 @@ export default function QuranTabs() {
                         const c = chapters.find((x) => x.id === id);
                         return (
                           <Button
-                            key={id}
+                            key={`juz-${j.juz_number}-chapter-${id}`}
                             variant="outline"
                             className="h-auto flex-col items-start py-2"
                             onClick={() => setSelectedSurah(id)}
