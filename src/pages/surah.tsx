@@ -60,7 +60,7 @@ export function SurahPage() {
 
   const [audioState, audioActions] = useAudioPlayer(chapterAudio);
   const { isPlaying, currentPlayingVerse, currentWordPosition } = audioState;
-  const { togglePlayPause, playSingleVerse, stop } = audioActions;
+  const { togglePlayPause, playFromVerse, stop } = audioActions;
 
   const handleBack = () => {
     navigate(`/?lang=${languageCode}`);
@@ -161,7 +161,8 @@ export function SurahPage() {
             isCurrentVerse={currentPlayingVerse === verse.verse_key}
             isPlaying={isPlaying}
             currentWordPosition={currentWordPosition}
-            onPlayVerse={playSingleVerse}
+            onPlayVerse={playFromVerse}
+            onTogglePause={togglePlayPause}
             hasAudio={!!chapterAudio}
             animationDelay={Math.min(index * 30, 300)}
           />

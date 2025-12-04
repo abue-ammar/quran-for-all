@@ -41,22 +41,36 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
               <CardTitle className="text-base">Juz {juz.juz_number}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {chapIds.map((id) => {
                   const chapter = chapters.find((x) => x.id === id);
                   return (
                     <Button
                       key={`juz-${juz.juz_number}-chapter-${id}`}
                       variant="outline"
-                      className="h-auto flex-col items-start gap-0 transition-all duration-200 hover:scale-[1.02]"
+                      className="h-auto w-full justify-between gap-2 px-3 py-2 transition-all duration-200 hover:scale-[1.02]"
                       onClick={() => handleChapterClick(id)}
                     >
-                      <span className="text-sm font-medium">
-                        {chapter?.name_simple}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {chapter?.translated_name?.name || chapter?.name_arabic}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium">
+                          {chapter?.name_simple}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {chapter?.translated_name?.name ||
+                            chapter?.name_arabic}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span
+                          className="text-base"
+                          style={{ fontFamily: "var(--font-arabic)" }}
+                        >
+                          {chapter?.name_arabic}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {chapter?.verses_count} Ayahs
+                        </span>
+                      </div>
                     </Button>
                   );
                 })}
