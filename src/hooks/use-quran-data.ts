@@ -10,11 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 
 /**
  * Hook to fetch all chapters
+ * @param language - Language code for translated names (e.g., 'en', 'ur', 'ar')
  */
-export function useChapters() {
+export function useChapters(language?: string) {
   return useQuery({
-    queryKey: queryKeys.chapters,
-    queryFn: fetchChapters,
+    queryKey: queryKeys.chapters(language),
+    queryFn: () => fetchChapters(language),
     staleTime: 1000 * 60 * 60, // 1 hour - chapters data rarely changes
     gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
     select: (data) => data.chapters,
@@ -23,11 +24,13 @@ export function useChapters() {
 
 /**
  * Hook to fetch a single chapter
+ * @param chapterId - Chapter ID (1-114)
+ * @param language - Language code for translated names (e.g., 'en', 'ur', 'ar')
  */
-export function useChapter(chapterId: number) {
+export function useChapter(chapterId: number, language?: string) {
   return useQuery({
-    queryKey: queryKeys.chapter(chapterId),
-    queryFn: () => fetchChapter(chapterId),
+    queryKey: queryKeys.chapter(chapterId, language),
+    queryFn: () => fetchChapter(chapterId, language),
     enabled: chapterId > 0 && chapterId <= 114,
     staleTime: 1000 * 60 * 60, // 1 hour
     gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours

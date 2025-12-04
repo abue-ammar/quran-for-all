@@ -48,8 +48,10 @@ export function VerseCard({
   return (
     <Card
       ref={cardRef}
-      className={`quran-card-appear py-4 transition-all duration-300 ${
-        isCurrentVerse ? "border-primary bg-primary/5 scale-[1.01]" : ""
+      className={`quran-card-appear py-0 transition-all duration-300 ${
+        isCurrentVerse
+          ? "border-primary bg-primary/5 dark:border-primary/50 scale-[1.01]"
+          : ""
       }`}
       style={{ animationDelay: `${animationDelay}ms` }}
     >
@@ -74,7 +76,7 @@ export function VerseCard({
             </Button>
           </div>
           <p
-            className="flex-1 text-right text-2xl leading-[2.5]"
+            className="flex-1 text-right text-2xl leading-[2]"
             dir="rtl"
             style={{ fontFamily: "Traditional Arabic, serif" }}
           >
@@ -85,7 +87,7 @@ export function VerseCard({
                     key={word.id}
                     className={`transition-all duration-150 ${
                       isCurrentVerse && currentWordPosition === word.position
-                        ? "bg-primary text-primary-foreground rounded px-1"
+                        ? "bg-primary text-primary-foreground rounded-md p-2 pr-1.5 pl-0.5"
                         : ""
                     }`}
                   >

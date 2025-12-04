@@ -28,18 +28,32 @@ async function fetchApi<T>(url: string): Promise<T> {
 
 /**
  * Fetch all chapters (surahs)
+ * @param language - Language code for translated names (e.g., 'en', 'ur', 'ar')
  */
-export async function fetchChapters(): Promise<ChaptersResponse> {
-  return fetchApi<ChaptersResponse>(`${QURAN_API_BASE}/chapters`);
+export async function fetchChapters(
+  language?: string
+): Promise<ChaptersResponse> {
+  const url = new URL(`${QURAN_API_BASE}/chapters`);
+  if (language) {
+    url.searchParams.set("language", language);
+  }
+  return fetchApi<ChaptersResponse>(url.toString());
 }
 
 /**
  * Fetch a single chapter by ID
+ * @param chapterId - Chapter ID (1-114)
+ * @param language - Language code for translated names (e.g., 'en', 'ur', 'ar')
  */
 export async function fetchChapter(
-  chapterId: number
+  chapterId: number,
+  language?: string
 ): Promise<ChapterResponse> {
-  return fetchApi<ChapterResponse>(`${QURAN_API_BASE}/chapters/${chapterId}`);
+  const url = new URL(`${QURAN_API_BASE}/chapters/${chapterId}`);
+  if (language) {
+    url.searchParams.set("language", language);
+  }
+  return fetchApi<ChapterResponse>(url.toString());
 }
 
 /**
@@ -84,8 +98,9 @@ export async function fetchChapterAudio(
  * Query keys for React Query
  */
 export const queryKeys = {
-  chapters: ["chapters"] as const,
-  chapter: (id: number) => ["chapter", id] as const,
+  chapters: (language?: string) => ["chapters", language] as const,
+  chapter: (id: number, language?: string) =>
+    ["chapter", id, language] as const,
   juzs: ["juzs"] as const,
   verses: (chapterId: number, translationId: number) =>
     ["verses", chapterId, translationId] as const,

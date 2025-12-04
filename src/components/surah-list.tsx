@@ -20,15 +20,18 @@ export function SurahList({ chapters, languageCode }: SurahListProps) {
       {chapters.map((chapter, index) => (
         <Card
           key={chapter.id}
-          className="quran-card-appear hover:bg-accent cursor-pointer py-4 transition-all duration-200 hover:scale-[1.02]"
+          className="quran-card-appear hover:bg-accent cursor-pointer p-0 transition-all duration-200 hover:scale-[1.02]"
           style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
           onClick={() => handleSurahClick(chapter.id)}
         >
           <CardContent className="flex items-center justify-between p-4">
             <div>
               <p className="font-semibold">{chapter.name_simple}</p>
-              <p className="text-muted-foreground text-sm">
-                {chapter.verses_count} verses
+              <p className="text-muted-foreground text-xs">
+                {chapter.translated_name?.name || chapter.name_simple}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {chapter.verses_count} Ayahs
               </p>
             </div>
             <p className="text-2xl">{chapter.name_arabic}</p>

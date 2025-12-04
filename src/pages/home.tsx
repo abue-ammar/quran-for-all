@@ -37,7 +37,7 @@ export function HomePage() {
     data: chapters,
     isLoading: chaptersLoading,
     error: chaptersError,
-  } = useChapters();
+  } = useChapters(languageCode);
 
   const { data: juzs, isLoading: juzsLoading, error: juzsError } = useJuzs();
 

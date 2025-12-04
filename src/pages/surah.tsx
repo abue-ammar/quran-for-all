@@ -47,7 +47,7 @@ export function SurahPage() {
     data: chapter,
     isLoading: chapterLoading,
     error: chapterError,
-  } = useChapter(chapterId);
+  } = useChapter(chapterId, languageCode);
 
   const {
     data: verses,
@@ -105,9 +105,15 @@ export function SurahPage() {
       <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
 
       <div className="mb-6 text-center">
-        <h1 className="mb-4 text-4xl leading-relaxed font-bold" dir="rtl">
+        <h1 className="mb-2 text-4xl leading-relaxed font-bold" dir="rtl">
           سُورَةُ {chapter.name_arabic}
         </h1>
+        <p className="text-muted-foreground mb-4 text-lg">
+          {chapter.name_simple}
+          {chapter.translated_name?.name &&
+            chapter.translated_name.name !== chapter.name_simple &&
+            ` - ${chapter.translated_name.name}`}
+        </p>
         <div className="flex items-center justify-between gap-2">
           <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
