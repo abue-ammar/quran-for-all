@@ -1,3 +1,6 @@
+import { Github } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { isTauriAndroid } from "@/lib/platform";
 import { ThemeToggle } from "./mode-toggle";
 
@@ -21,7 +24,19 @@ const Header = () => {
               </span>
             </a>
           </div>
-          {!isTauriAndroid() && <ThemeToggle />}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" asChild>
+              <a
+                href="https://github.com/abue-ammar/quran-for-all"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">GitHub</span>
+              </a>
+            </Button>
+            {!isTauriAndroid() && <ThemeToggle />}
+          </div>
         </div>
       </div>
     </header>

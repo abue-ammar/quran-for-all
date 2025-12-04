@@ -30,11 +30,18 @@ export function SurahList({ chapters, languageCode }: SurahListProps) {
               <p className="text-muted-foreground text-xs">
                 {chapter.translated_name?.name || chapter.name_simple}
               </p>
+            </div>
+            <div className="text-right">
+              <p
+                className="text-xl"
+                style={{ fontFamily: "var(--font-arabic)" }}
+              >
+                {chapter.name_arabic}
+              </p>
               <p className="text-muted-foreground text-xs">
                 {chapter.verses_count} Ayahs
               </p>
             </div>
-            <p className="text-2xl">{chapter.name_arabic}</p>
           </CardContent>
         </Card>
       ))}

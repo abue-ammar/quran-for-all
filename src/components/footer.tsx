@@ -17,7 +17,7 @@ const Footer = () => {
         <a
           target="_blank"
           href="https://github.com/abue-ammar"
-          className="text-primary hover:text-primary-foreground underline transition-colors"
+          className="text-primary underline transition-colors"
         >
           Abue Ammar
         </a>

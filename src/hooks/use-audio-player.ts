@@ -183,6 +183,8 @@ export function useAudioPlayer(
     if (audioRef.current && isPlaying) {
       audioRef.current.pause();
     } else if (audioRef.current && !isPlaying) {
+      // Clear the single-verse end check so playback continues to next verses
+      audioRef.current.ontimeupdate = null;
       audioRef.current.play();
       animationFrameRef.current = requestAnimationFrame(updateHighlight);
     } else {

@@ -11,6 +11,7 @@ type VerseCardProps = {
   isPlaying: boolean;
   currentWordPosition: number;
   onPlayVerse: (verseKey: string) => void;
+  onTogglePause: () => void;
   hasAudio: boolean;
   animationDelay?: number;
 };
@@ -21,6 +22,7 @@ export function VerseCard({
   isPlaying,
   currentWordPosition,
   onPlayVerse,
+  onTogglePause,
   hasAudio,
   animationDelay = 0,
 }: VerseCardProps) {
@@ -65,7 +67,13 @@ export function VerseCard({
               variant="ghost"
               size="icon"
               className="h-8 w-8 transition-all duration-200 hover:scale-110"
-              onClick={() => onPlayVerse(verse.verse_key)}
+              onClick={() => {
+                if (isCurrentVerse && isPlaying) {
+                  onTogglePause();
+                } else {
+                  onPlayVerse(verse.verse_key);
+                }
+              }}
               disabled={!hasAudio}
             >
               {isCurrentVerse && isPlaying ? (
@@ -76,7 +84,7 @@ export function VerseCard({
             </Button>
           </div>
           <p
-            className="flex-1 text-right text-2xl leading-[2]"
+            className="flex-1 text-right text-2xl leading-[3]"
             dir="rtl"
             style={{ fontFamily: "var(--font-arabic)" }}
           >
