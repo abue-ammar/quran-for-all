@@ -1,5 +1,5 @@
 // Cache version - auto-updated during build
-const CACHE_VERSION = "1.0.0-20251204.1826";
+const CACHE_VERSION = "1.0.0-20251204.1828";
 const CACHE_NAME = `quran-for-all-v${CACHE_VERSION}`;
 
 const STATIC_CACHE_URLS = [
