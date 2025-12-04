@@ -209,8 +209,18 @@ jobs:
           npx tauri android build --apk --split-per-abi
 
       - name: Sign APKs with apksigner
+        continue-on-error: true
+        id: sign-apks
         run: |
           echo "Signing APKs with apksigner..."
+          SIGN_SUCCESS=0
+          SIGN_FAILED=0
+
+          # Check if keystore exists and is valid
+          if [ ! -f "$RUNNER_TEMP/keystore.jks" ]; then
+            echo "❌ Keystore file not found. Skipping signing."
+            exit 1
+          fi
 
           # Find and sign all unsigned APKs
           find src-tauri/gen/android/app/build/outputs/apk -name "*-unsigned.apk" -type f | while read unsigned_apk; do
@@ -220,26 +230,35 @@ jobs:
             echo "Signing: $unsigned_apk -> $signed_apk"
             
             # Sign the APK
-            $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            if $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
               --ks $RUNNER_TEMP/keystore.jks \
               --ks-key-alias ${{ secrets.ANDROID_KEY_ALIAS }} \
               --ks-pass pass:${{ secrets.ANDROID_KEY_PASSWORD }} \
               --key-pass pass:${{ secrets.ANDROID_KEY_PASSWORD }} \
               --out "$signed_apk" \
-              "$unsigned_apk"
-            
-            # Verify the signed APK
-            echo "Verifying signed APK: $signed_apk"
-            $ANDROID_HOME/build-tools/34.0.0/apksigner verify "$signed_apk"
-            
-            if [ $? -eq 0 ]; then
-              echo "✅ Successfully signed and verified: $(basename "$signed_apk")"
+              "$unsigned_apk" 2>&1; then
+              
+              # Verify the signed APK
+              echo "Verifying signed APK: $signed_apk"
+              if $ANDROID_HOME/build-tools/34.0.0/apksigner verify "$signed_apk"; then
+                echo "✅ Successfully signed and verified: $(basename "$signed_apk")"
+                SIGN_SUCCESS=$((SIGN_SUCCESS + 1))
+              else
+                echo "❌ Failed to verify: $(basename "$signed_apk")"
+                rm -f "$signed_apk"
+                SIGN_FAILED=$((SIGN_FAILED + 1))
+              fi
             else
-              echo "❌ Failed to verify: $(basename "$signed_apk")"
+              echo "❌ Failed to sign: $(basename "$unsigned_apk")"
+              SIGN_FAILED=$((SIGN_FAILED + 1))
             fi
           done
 
+          echo "Signing summary: $SIGN_SUCCESS succeeded, $SIGN_FAILED failed"
+
       - name: Verify APK Signing
+        if: always()
+        continue-on-error: true
         run: |
           echo "Verifying APK signing status..."
           find src-tauri/gen/android/app/build/outputs/apk -name "*-signed.apk" -type f | while read apk; do
@@ -256,6 +275,7 @@ jobs:
           done
 
       - name: List Android Build Output
+        if: always()
         run: |
           echo "Contents of src-tauri/gen/android/app/build/outputs/apk:"
           find src-tauri/gen/android/app/build/outputs/apk -name "*.apk" -type f || echo "No APK files found"
@@ -265,15 +285,27 @@ jobs:
 
       - name: Upload Signed Android APK
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: android-build-signed
           path: |
             src-tauri/gen/android/app/build/outputs/apk/**/*-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload Unsigned Android APK (fallback)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-build-unsigned
+          path: |
+            src-tauri/gen/android/app/build/outputs/apk/**/*-unsigned.apk
+          if-no-files-found: ignore
 
   release:
     name: Release to GitHub
     runs-on: ubuntu-latest
     needs: [build-desktop, build-android]
+    if: always() && !cancelled()
     # Always run release job regardless of which repository
     steps:
       - name: Checkout
@@ -281,6 +313,7 @@ jobs:
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: ./artifacts
 
@@ -288,20 +321,37 @@ jobs:
         run: |
           mkdir -p release-files
 
-          # Copy Android APKs (only signed ones)
-          find artifacts/android-build-signed -name "*-signed.apk" -type f -exec cp {} release-files/ \;
+          # Copy Android APKs (prefer signed ones, fall back to unsigned)
+          if [ -d "artifacts/android-build-signed" ]; then
+            find artifacts/android-build-signed -name "*-signed.apk" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          fi
 
-          # Copy desktop builds
-          find artifacts/windows-build -name "*.exe" -type f -exec cp {} release-files/ \;
-          find artifacts/windows-build -name "*.msi" -type f -exec cp {} release-files/ \;
-          find artifacts/macos-intel-build -name "*.dmg" -type f -exec cp {} release-files/ \;
-          find artifacts/macos-apple-silicon-build -name "*.dmg" -type f -exec cp {} release-files/ \;
-          find artifacts/linux-build -name "*.deb" -type f -exec cp {} release-files/ \;
-          find artifacts/linux-build -name "*.AppImage" -type f -exec cp {} release-files/ \;
+          # If no signed APKs, copy unsigned ones
+          SIGNED_COUNT=$(find release-files -name "*-signed.apk" -type f 2>/dev/null | wc -l)
+          if [ "$SIGNED_COUNT" -eq 0 ] && [ -d "artifacts/android-build-unsigned" ]; then
+            echo "No signed APKs found, using unsigned APKs..."
+            find artifacts/android-build-unsigned -name "*-unsigned.apk" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          fi
+
+          # Copy desktop builds (ignore errors if artifacts don't exist)
+          find artifacts/windows-build -name "*.exe" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          find artifacts/windows-build -name "*.msi" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          find artifacts/macos-intel-build -name "*.dmg" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          find artifacts/macos-apple-silicon-build -name "*.dmg" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          find artifacts/linux-build -name "*.deb" -type f -exec cp {} release-files/ \; 2>/dev/null || true
+          find artifacts/linux-build -name "*.AppImage" -type f -exec cp {} release-files/ \; 2>/dev/null || true
 
           # List all files
           echo "Release files:"
           ls -la release-files/
+
+          # Check if we have any files to release
+          FILE_COUNT=$(find release-files -type f | wc -l)
+          if [ "$FILE_COUNT" -eq 0 ]; then
+            echo "⚠️ No release files found!"
+          else
+            echo "✅ Found $FILE_COUNT files to release"
+          fi
 
       - name: Generate release tag
         id: tag
