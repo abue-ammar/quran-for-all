@@ -12,6 +12,7 @@ type VerseCardProps = {
   currentWordPosition: number;
   onPlayVerse: (verseKey: string) => void;
   hasAudio: boolean;
+  animationDelay?: number;
 };
 
 export function VerseCard({
@@ -21,6 +22,7 @@ export function VerseCard({
   currentWordPosition,
   onPlayVerse,
   hasAudio,
+  animationDelay = 0,
 }: VerseCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const lastScrolledRef = useRef<boolean>(false);
@@ -46,9 +48,10 @@ export function VerseCard({
   return (
     <Card
       ref={cardRef}
-      className={`py-4 transition-colors ${
-        isCurrentVerse ? "border-primary bg-primary/5" : ""
+      className={`quran-card-appear py-4 transition-all duration-300 ${
+        isCurrentVerse ? "border-primary bg-primary/5 scale-[1.01]" : ""
       }`}
+      style={{ animationDelay: `${animationDelay}ms` }}
     >
       <CardContent className="space-y-3 p-4">
         <div className="flex items-start justify-between gap-4">
@@ -59,7 +62,7 @@ export function VerseCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 transition-all duration-200 hover:scale-110"
               onClick={() => onPlayVerse(verse.verse_key)}
               disabled={!hasAudio}
             >

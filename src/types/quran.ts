@@ -25,13 +25,6 @@ export type Juz = {
   verses_count: number;
 };
 
-// Language/Translation types
-export type Language = {
-  id: number;
-  name: string;
-  code: string;
-};
-
 export type Translation = {
   id: number;
   text: string;

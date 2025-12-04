@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 type SurahListProps = {
   chapters: Chapter[];
   languageCode: string;
+  translationId: number;
 };
 
 export function SurahList({ chapters, languageCode }: SurahListProps) {
@@ -16,10 +17,11 @@ export function SurahList({ chapters, languageCode }: SurahListProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {chapters.map((chapter) => (
+      {chapters.map((chapter, index) => (
         <Card
           key={chapter.id}
-          className="hover:bg-accent cursor-pointer py-4 transition-colors"
+          className="quran-card-appear hover:bg-accent cursor-pointer py-4 transition-all duration-200 hover:scale-[1.02]"
+          style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
           onClick={() => handleSurahClick(chapter.id)}
         >
           <CardContent className="flex items-center justify-between p-4">

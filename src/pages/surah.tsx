@@ -9,8 +9,14 @@ import {
   useChapterAudio,
   useVerses,
 } from "@/hooks";
-import { DEFAULT_LANGUAGE, getLanguageByCode } from "@/lib/constants";
+import {
+  DEFAULT_LANGUAGE,
+  getLanguageByCode,
+  getSavedLanguageCode,
+  saveLanguageCode,
+} from "@/lib/constants";
 import { ArrowLeft, Pause, Play, Square } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 export function SurahPage() {
@@ -19,8 +25,23 @@ export function SurahPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const chapterId = parseInt(surahId || "1", 10);
-  const langCode = searchParams.get("lang") || DEFAULT_LANGUAGE.code;
-  const language = getLanguageByCode(langCode) || DEFAULT_LANGUAGE;
+  const langParam = searchParams.get("lang");
+
+  // Get language code from URL or localStorage
+  const [languageCode, setLanguageCode] = useState<string>(() => {
+    if (langParam && getLanguageByCode(langParam)) {
+      return langParam;
+    }
+    return getSavedLanguageCode();
+  });
+
+  // Sync language to localStorage
+  useEffect(() => {
+    saveLanguageCode(languageCode);
+  }, [languageCode]);
+
+  // Get the current language option
+  const currentLanguage = getLanguageByCode(languageCode) || DEFAULT_LANGUAGE;
 
   const {
     data: chapter,
@@ -32,7 +53,7 @@ export function SurahPage() {
     data: verses,
     isLoading: versesLoading,
     error: versesError,
-  } = useVerses(chapterId, language.id);
+  } = useVerses(chapterId, currentLanguage.translationId);
 
   const { data: chapterAudio, isLoading: audioLoading } =
     useChapterAudio(chapterId);
@@ -42,11 +63,12 @@ export function SurahPage() {
   const { togglePlayPause, playSingleVerse, stop } = audioActions;
 
   const handleBack = () => {
-    navigate(`/?lang=${langCode}`);
+    navigate(`/?lang=${languageCode}`);
   };
 
-  const handleLanguageChange = (code: string) => {
-    setSearchParams({ lang: code });
+  const handleLanguageChange = (newCode: string) => {
+    setLanguageCode(newCode);
+    setSearchParams({ lang: newCode });
   };
 
   const loading = chapterLoading || versesLoading;
@@ -83,13 +105,20 @@ export function SurahPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-4 flex items-center justify-between">
-        <Button variant="outline" onClick={handleBack}>
+    <div className="quran-fade-in mx-auto max-w-4xl">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <Button
+          variant="outline"
+          onClick={handleBack}
+          className="transition-all duration-200 hover:scale-105"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <LanguageSelector value={langCode} onChange={handleLanguageChange} />
+        <LanguageSelector
+          value={languageCode}
+          onChange={handleLanguageChange}
+        />
       </div>
 
       <div className="mb-6 text-center">
@@ -101,7 +130,7 @@ export function SurahPage() {
             variant="outline"
             size="sm"
             onClick={togglePlayPause}
-            className="gap-2"
+            className="gap-2 transition-all duration-200 hover:scale-105"
             disabled={audioLoading || !chapterAudio}
           >
             {isPlaying ? (
@@ -117,7 +146,12 @@ export function SurahPage() {
             )}
           </Button>
           {(isPlaying || currentPlayingVerse) && (
-            <Button variant="outline" size="sm" onClick={stop}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={stop}
+              className="transition-all duration-200 hover:scale-105"
+            >
               <Square className="h-4 w-4" />
             </Button>
           )}
@@ -125,7 +159,7 @@ export function SurahPage() {
       </div>
 
       <div className="space-y-4">
-        {verses?.map((verse) => (
+        {verses?.map((verse, index) => (
           <VerseCard
             key={verse.id}
             verse={verse}
@@ -134,6 +168,7 @@ export function SurahPage() {
             currentWordPosition={currentWordPosition}
             onPlayVerse={playSingleVerse}
             hasAudio={!!chapterAudio}
+            animationDelay={Math.min(index * 30, 300)}
           />
         ))}
       </div>

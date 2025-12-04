@@ -5,15 +5,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChapters, useJuzs } from "@/hooks";
-import { DEFAULT_LANGUAGE, getLanguageByCode } from "@/lib/constants";
-import { useState } from "react";
+import {
+  DEFAULT_LANGUAGE,
+  getLanguageByCode,
+  getSavedLanguageCode,
+  saveLanguageCode,
+} from "@/lib/constants";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const langCode = searchParams.get("lang") || DEFAULT_LANGUAGE.code;
+  const langParam = searchParams.get("lang");
 
   const [activeTab, setActiveTab] = useState("surah");
+
+  // Get language code from URL or localStorage
+  const [languageCode, setLanguageCode] = useState<string>(() => {
+    if (langParam && getLanguageByCode(langParam)) {
+      return langParam;
+    }
+    return getSavedLanguageCode();
+  });
+
+  // Sync language to localStorage
+  useEffect(() => {
+    saveLanguageCode(languageCode);
+  }, [languageCode]);
 
   const {
     data: chapters,
@@ -23,12 +41,16 @@ export function HomePage() {
 
   const { data: juzs, isLoading: juzsLoading, error: juzsError } = useJuzs();
 
-  const handleLanguageChange = (code: string) => {
-    setSearchParams({ lang: code });
+  const handleLanguageChange = (newCode: string) => {
+    setLanguageCode(newCode);
+    setSearchParams({ lang: newCode });
   };
 
   const loading = chaptersLoading || juzsLoading;
   const error = chaptersError || juzsError;
+
+  // Get the current language option
+  const currentLanguage = getLanguageByCode(languageCode) || DEFAULT_LANGUAGE;
 
   if (loading) {
     return (
@@ -58,13 +80,11 @@ export function HomePage() {
     );
   }
 
-  const currentLanguage = getLanguageByCode(langCode) || DEFAULT_LANGUAGE;
-
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="quran-fade-in mx-auto max-w-4xl">
       <div className="mb-4">
         <LanguageSelector
-          value={currentLanguage.code}
+          value={languageCode}
           onChange={handleLanguageChange}
         />
       </div>
@@ -79,7 +99,8 @@ export function HomePage() {
           {chapters && (
             <SurahList
               chapters={chapters}
-              languageCode={currentLanguage.code}
+              languageCode={languageCode}
+              translationId={currentLanguage.translationId}
             />
           )}
         </TabsContent>
@@ -89,7 +110,8 @@ export function HomePage() {
             <JuzList
               juzs={juzs}
               chapters={chapters}
-              languageCode={currentLanguage.code}
+              languageCode={languageCode}
+              translationId={currentLanguage.translationId}
             />
           )}
         </TabsContent>

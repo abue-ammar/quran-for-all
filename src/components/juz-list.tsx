@@ -7,6 +7,7 @@ type JuzListProps = {
   juzs: Juz[];
   chapters: Chapter[];
   languageCode: string;
+  translationId: number;
 };
 
 function getChapterIdsForJuz(juz: Juz): number[] {
@@ -31,7 +32,11 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
       {juzs.map((juz, juzIndex) => {
         const chapIds = getChapterIdsForJuz(juz);
         return (
-          <Card key={`juz-${juz.juz_number}-${juzIndex}`} className="py-4">
+          <Card
+            key={`juz-${juz.juz_number}-${juzIndex}`}
+            className="quran-card-appear py-4"
+            style={{ animationDelay: `${Math.min(juzIndex * 30, 300)}ms` }}
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Juz {juz.juz_number}</CardTitle>
             </CardHeader>
@@ -43,7 +48,7 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
                     <Button
                       key={`juz-${juz.juz_number}-chapter-${id}`}
                       variant="outline"
-                      className="h-auto flex-col items-start py-2"
+                      className="h-auto flex-col items-start py-2 transition-all duration-200 hover:scale-[1.02]"
                       onClick={() => handleChapterClick(id)}
                     >
                       <span className="text-sm font-medium">
