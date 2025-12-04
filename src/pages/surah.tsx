@@ -101,7 +101,7 @@ export function SurahPage() {
   }
 
   return (
-    <div className="quran-fade-in mx-auto max-w-4xl">
+    <div className="quran-fade-in mx-auto w-full max-w-4xl">
       <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
 
       <div className="mb-4 text-center">

@@ -25,7 +25,7 @@ function App() {
         <BrowserRouter>
           <div className="flex h-screen flex-col overflow-auto">
             <Header />
-            <main className="container mx-auto flex-1 p-4">
+            <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-4">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/surah/:surahId" element={<SurahPage />} />

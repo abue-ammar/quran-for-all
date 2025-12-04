@@ -4,25 +4,17 @@ import { ThemeToggle } from "./mode-toggle";
 const Header = () => {
   return (
     <header className="bg-background text-foreground border-border sticky top-0 z-50 mx-auto w-full border-b">
-      <div className="mx-auto flex h-14 max-w-4xl items-center px-4 md:px-0">
+      <div className="mx-auto flex h-14 max-w-4xl items-center px-4">
         <div className="flex w-full items-center justify-between">
           <div className="mr-4">
             <a className="mr-6 flex items-center space-x-2" href="/">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 -960 960 960"
                 className="text-primary size-8"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                fill="currentColor"
               >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M15 8h.01" />
-                <path d="M11 21h-5a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v5.5" />
-                <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l2 2" />
-                <path d="M17.8 20.817l-2.172 1.138a.392 .392 0 0 1 -.568 -.41l.415 -2.411l-1.757 -1.707a.389 .389 0 0 1 .217 -.665l2.428 -.352l1.086 -2.193a.392 .392 0 0 1 .702 0l1.086 2.193l2.428 .352a.39 .39 0 0 1 .217 .665l-1.757 1.707l.414 2.41a.39 .39 0 0 1 -.567 .411l-2.172 -1.138z" />
+                <path d="M300-80q-58 0-99-41t-41-99v-520q0-58 41-99t99-41h500v600q-25 0-42.5 17.5T740-220q0 25 17.5 42.5T800-160v80H300Zm-60-267q14-7 29-10t31-3h20v-440h-20q-25 0-42.5 17.5T240-740v393Zm160-13h320v-440H400v440Zm-160 13v-453 453Zm60 187h373q-6-14-9.5-28.5T660-220q0-16 3-31t10-29H300q-26 0-43 17.5T240-220q0 26 17 43t43 17Z" />
               </svg>
               <span className="text-foreground text-lg font-bold sm:inline-block">
                 Quran For All

@@ -81,7 +81,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="quran-fade-in mx-auto max-w-4xl">
+    <div className="quran-fade-in mx-auto w-full max-w-4xl">
       <div className="mb-4">
         <LanguageSelector
           value={languageCode}
