@@ -2,6 +2,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Arabic font from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap");
+
 @custom-variant dark (&:is(.dark *));
 
 /* Fade-in animations */
@@ -229,6 +232,7 @@ html {
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-arabic: "Amiri Quran", "Traditional Arabic", serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
