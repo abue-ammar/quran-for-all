@@ -34,14 +34,14 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
         return (
           <Card
             key={`juz-${juz.juz_number}-${juzIndex}`}
-            className="quran-card-appear py-4"
+            className="quran-card-appear gap-4 py-4"
             style={{ animationDelay: `${Math.min(juzIndex * 30, 300)}ms` }}
           >
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Juz {juz.juz_number}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <CardContent className="px-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {chapIds.map((id) => {
                   const chapter = chapters.find((x) => x.id === id);
                   return (

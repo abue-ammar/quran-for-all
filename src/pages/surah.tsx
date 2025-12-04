@@ -89,10 +89,6 @@ export function SurahPage() {
   if (error || !chapter) {
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <Button variant="outline" onClick={handleBack} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
         <Card className="border-destructive bg-destructive/10">
           <CardContent className="pt-4">
             <p className="text-destructive">
@@ -106,55 +102,48 @@ export function SurahPage() {
 
   return (
     <div className="quran-fade-in mx-auto max-w-4xl">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          className="transition-all duration-200 hover:scale-105"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <LanguageSelector
-          value={languageCode}
-          onChange={handleLanguageChange}
-        />
-      </div>
+      <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
 
       <div className="mb-6 text-center">
         <h1 className="mb-4 text-4xl leading-relaxed font-bold" dir="rtl">
           سُورَةُ {chapter.name_arabic}
         </h1>
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={togglePlayPause}
-            className="gap-2 transition-all duration-200 hover:scale-105"
-            disabled={audioLoading || !chapterAudio}
-          >
-            {isPlaying ? (
-              <>
-                <Pause className="h-4 w-4" />
-                Pause Surah
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4" />
-                Play Surah
-              </>
-            )}
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="outline" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4" />
+            Back
           </Button>
-          {(isPlaying || currentPlayingVerse) && (
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={stop}
-              className="transition-all duration-200 hover:scale-105"
+              onClick={togglePlayPause}
+              className="gap-2 transition-all duration-200 hover:scale-105"
+              disabled={audioLoading || !chapterAudio}
             >
-              <Square className="h-4 w-4" />
+              {isPlaying ? (
+                <>
+                  <Pause className="h-4 w-4" />
+                  Pause Surah
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Play Surah
+                </>
+              )}
             </Button>
-          )}
+            {(isPlaying || currentPlayingVerse) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={stop}
+                className="transition-all duration-200 hover:scale-105"
+              >
+                <Square className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

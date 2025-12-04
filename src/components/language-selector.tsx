@@ -16,12 +16,9 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
   const selectedLanguage = LANGUAGES.find((l) => l.code === value);
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-muted-foreground text-sm font-medium whitespace-nowrap">
-        Language:
-      </span>
+    <div className="mb-4 flex items-center gap-4 md:justify-end">
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-full md:w-[220px]">
           <SelectValue>
             {selectedLanguage
               ? `${selectedLanguage.name} (${selectedLanguage.nativeName})`
