@@ -27,6 +27,11 @@ export function SurahPage() {
   const chapterId = parseInt(surahId || "1", 10);
   const langParam = searchParams.get("lang");
 
+  // Scroll to top when navigating to this page
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [surahId]);
+
   // Get language code from URL or localStorage
   const [languageCode, setLanguageCode] = useState<string>(() => {
     if (langParam && getLanguageByCode(langParam)) {
@@ -76,11 +81,24 @@ export function SurahPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-8 w-48" />
+      <div className="mx-auto w-full max-w-4xl space-y-4">
+        {/* Language selector skeleton */}
+        <div className="mb-4 flex items-center gap-4 md:justify-end">
+          <Skeleton className="h-9 w-full md:w-[220px]" />
+        </div>
+        {/* Surah title skeleton */}
+        <div className="mb-4 space-y-2 text-center">
+          <Skeleton className="mx-auto h-12 w-64" />
+          <Skeleton className="mx-auto h-6 w-48" />
+        </div>
+        {/* Action buttons skeleton */}
+        <div className="mb-6 flex items-center justify-between gap-2">
+          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-9 w-28" />
+        </div>
+        {/* Verse cards skeleton */}
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 w-full" />
+          <Skeleton key={i} className="h-[140px] w-full rounded-xl" />
         ))}
       </div>
     );
@@ -88,7 +106,7 @@ export function SurahPage() {
 
   if (error || !chapter) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
+      <div className="mx-auto max-w-4xl p-4">
         <Card className="border-destructive bg-destructive/10">
           <CardContent className="pt-4">
             <p className="text-destructive">

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/footer";
 import Header from "./components/header";
+import { PWAInstallPrompt } from "./components/pwa-install-prompt";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { HomePage, SurahPage } from "./pages";
@@ -23,7 +24,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <BrowserRouter>
-          <div className="flex h-screen flex-col overflow-auto">
+          <div className="flex min-h-screen flex-col">
             <Header />
             <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-4">
               <Routes>
@@ -33,6 +34,7 @@ function App() {
               <Footer />
               <Toaster />
             </main>
+            <PWAInstallPrompt />
           </div>
         </BrowserRouter>
       </ThemeProvider>
