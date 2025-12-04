@@ -1,0 +1,142 @@
+import { LanguageSelector } from "@/components/language-selector";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { VerseCard } from "@/components/verse-card";
+import {
+  useAudioPlayer,
+  useChapter,
+  useChapterAudio,
+  useVerses,
+} from "@/hooks";
+import { DEFAULT_LANGUAGE, getLanguageByCode } from "@/lib/constants";
+import { ArrowLeft, Pause, Play, Square } from "lucide-react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
+export function SurahPage() {
+  const navigate = useNavigate();
+  const { surahId } = useParams<{ surahId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const chapterId = parseInt(surahId || "1", 10);
+  const langCode = searchParams.get("lang") || DEFAULT_LANGUAGE.code;
+  const language = getLanguageByCode(langCode) || DEFAULT_LANGUAGE;
+
+  const {
+    data: chapter,
+    isLoading: chapterLoading,
+    error: chapterError,
+  } = useChapter(chapterId);
+
+  const {
+    data: verses,
+    isLoading: versesLoading,
+    error: versesError,
+  } = useVerses(chapterId, language.id);
+
+  const { data: chapterAudio, isLoading: audioLoading } =
+    useChapterAudio(chapterId);
+
+  const [audioState, audioActions] = useAudioPlayer(chapterAudio);
+  const { isPlaying, currentPlayingVerse, currentWordPosition } = audioState;
+  const { togglePlayPause, playSingleVerse, stop } = audioActions;
+
+  const handleBack = () => {
+    navigate(`/?lang=${langCode}`);
+  };
+
+  const handleLanguageChange = (code: string) => {
+    setSearchParams({ lang: code });
+  };
+
+  const loading = chapterLoading || versesLoading;
+  const error = chapterError || versesError;
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4">
+        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-48" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-32 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (error || !chapter) {
+    return (
+      <div className="mx-auto max-w-4xl p-6">
+        <Button variant="outline" onClick={handleBack} className="mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Card className="border-destructive bg-destructive/10">
+          <CardContent className="pt-4">
+            <p className="text-destructive">
+              Failed to load surah. Please try again.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-4 flex items-center justify-between">
+        <Button variant="outline" onClick={handleBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <LanguageSelector value={langCode} onChange={handleLanguageChange} />
+      </div>
+
+      <div className="mb-6 text-center">
+        <h1 className="mb-4 text-4xl leading-relaxed font-bold" dir="rtl">
+          سُورَةُ {chapter.name_arabic}
+        </h1>
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={togglePlayPause}
+            className="gap-2"
+            disabled={audioLoading || !chapterAudio}
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="h-4 w-4" />
+                Pause Surah
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4" />
+                Play Surah
+              </>
+            )}
+          </Button>
+          {(isPlaying || currentPlayingVerse) && (
+            <Button variant="outline" size="sm" onClick={stop}>
+              <Square className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {verses?.map((verse) => (
+          <VerseCard
+            key={verse.id}
+            verse={verse}
+            isCurrentVerse={currentPlayingVerse === verse.verse_key}
+            isPlaying={isPlaying}
+            currentWordPosition={currentWordPosition}
+            onPlayVerse={playSingleVerse}
+            hasAudio={!!chapterAudio}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
