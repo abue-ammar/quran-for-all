@@ -1,9 +1,9 @@
+/* Arabic font from Google Fonts - must be first */
+@import url("https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap");
+
 @import "./fonts.css";
 @import "tailwindcss";
 @import "tw-animate-css";
-
-/* Arabic font from Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 

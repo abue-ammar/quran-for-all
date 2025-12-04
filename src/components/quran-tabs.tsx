@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import axios from "axios";
 import { ArrowLeft, Pause, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -32,13 +31,38 @@ type Language = {
   code: string;
 };
 
+type Word = {
+  id: number;
+  position: number;
+  text_uthmani: string;
+  char_type_name?: string;
+  audio_url?: string;
+  location?: string;
+};
+
+type WordSegment = [number, number, number]; // [wordPosition, startMs, endMs]
+
+type VerseTiming = {
+  verse_key: string;
+  timestamp_from: number;
+  timestamp_to: number;
+  duration: number;
+  segments: WordSegment[];
+};
+
+type ChapterAudio = {
+  audio_url: string;
+  duration: number;
+  verse_timings: VerseTiming[];
+};
+
 type Verse = {
   id: number;
   verse_key: string;
   verse_number: number;
   text_uthmani: string;
+  words?: Word[];
   translations?: { text: string }[];
-  audio?: { url: string };
 };
 
 const LANGUAGES: Language[] = [
@@ -53,7 +77,7 @@ const LANGUAGES: Language[] = [
   { id: 79, name: "Hindi", code: "hi" },
 ];
 
-const AUDIO_BASE_URL = "https://verses.quran.com/";
+const AUDIO_CDN_BASE = "https://api.qurancdn.com/api/qdc/audio/reciters";
 
 export default function QuranTabs() {
   const [language, setLanguage] = useState<Language>(LANGUAGES[0]);
@@ -68,11 +92,13 @@ export default function QuranTabs() {
       try {
         setLoading(true);
         const [chaptersRes, juzsRes] = await Promise.all([
-          axios.get("https://api.quran.com/api/v4/chapters"),
-          axios.get("https://api.quran.com/api/v4/juzs"),
+          fetch("https://api.quran.com/api/v4/chapters"),
+          fetch("https://api.quran.com/api/v4/juzs"),
         ]);
-        setChapters(chaptersRes.data.chapters);
-        setJuzs(juzsRes.data.juzs);
+        const chaptersData = await chaptersRes.json();
+        const juzsData = await juzsRes.json();
+        setChapters(chaptersData.chapters);
+        setJuzs(juzsData.juzs);
         setError(null);
       } catch {
         setError("Failed to load Quran data. Please try again.");
@@ -242,61 +268,53 @@ function SurahViewer({
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const [chapterInfo, setChapterInfo] = useState<Chapter | null>(null);
-  const [isPlayingAll, setIsPlayingAll] = useState(false);
-  const [currentPlayingVerse, setCurrentPlayingVerse] = useState<number | null>(
+  const [chapterAudio, setChapterAudio] = useState<ChapterAudio | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentPlayingVerse, setCurrentPlayingVerse] = useState<string | null>(
     null
   );
+  const [currentWordPosition, setCurrentWordPosition] = useState<number>(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isPlayingAllRef = useRef(false);
-  const versesRef = useRef<Verse[]>([]);
-
-  // Keep refs in sync with state
-  useEffect(() => {
-    isPlayingAllRef.current = isPlayingAll;
-  }, [isPlayingAll]);
-
-  useEffect(() => {
-    versesRef.current = verses;
-  }, [verses]);
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const [versesRes, chapterRes] = await Promise.all([
-          axios.get(
-            `https://api.quran.com/api/v4/verses/by_chapter/${chapterId}`,
-            {
-              params: {
-                translations: language.id,
-                per_page: 300,
-                fields: "text_uthmani,verse_key",
-              },
-            }
-          ),
-          axios.get(`https://api.quran.com/api/v4/chapters/${chapterId}`),
-        ]);
-
-        // Fetch audio data separately
-        const audioRes = await axios.get(
-          `https://api.quran.com/api/v4/recitations/7/by_chapter/${chapterId}`
+        const versesUrl = new URL(
+          `https://api.quran.com/api/v4/verses/by_chapter/${chapterId}`
+        );
+        versesUrl.searchParams.set("translations", language.id.toString());
+        versesUrl.searchParams.set("per_page", "300");
+        versesUrl.searchParams.set("fields", "text_uthmani,verse_key");
+        versesUrl.searchParams.set("words", "true");
+        versesUrl.searchParams.set(
+          "word_fields",
+          "text_uthmani,char_type_name"
         );
 
-        const versesData = versesRes.data.verses;
-        const audioFiles = audioRes.data.audio_files;
+        const [versesRes, chapterRes, audioRes] = await Promise.all([
+          fetch(versesUrl.toString()),
+          fetch(`https://api.quran.com/api/v4/chapters/${chapterId}`),
+          fetch(
+            `${AUDIO_CDN_BASE}/7/audio_files?chapter=${chapterId}&segments=true`
+          ),
+        ]);
 
-        // Merge audio URLs into verses
-        const versesWithAudio = versesData.map((v: any, index: number) => ({
-          ...v,
-          audio: {
-            url: audioFiles[index]?.url
-              ? AUDIO_BASE_URL + audioFiles[index].url
-              : null,
-          },
-        }));
+        const versesData = await versesRes.json();
+        const chapterData = await chapterRes.json();
+        const audioData = await audioRes.json();
 
-        setVerses(versesWithAudio);
-        setChapterInfo(chapterRes.data.chapter);
+        setVerses(versesData.verses);
+        setChapterInfo(chapterData.chapter);
+
+        if (audioData.audio_files?.[0]) {
+          setChapterAudio({
+            audio_url: audioData.audio_files[0].audio_url,
+            duration: audioData.audio_files[0].duration,
+            verse_timings: audioData.audio_files[0].verse_timings || [],
+          });
+        }
       } catch (err) {
         console.error("Failed to load surah", err);
       } finally {
@@ -313,74 +331,172 @@ function SurahViewer({
         audioRef.current.pause();
         audioRef.current = null;
       }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
 
-  const playVerseAtIndex = useCallback((verseIndex: number) => {
-    const currentVerses = versesRef.current;
-    const verse = currentVerses[verseIndex];
-    if (!verse?.audio?.url) return;
+  const updateHighlight = useCallback(() => {
+    if (!audioRef.current || !chapterAudio) return;
+
+    const currentTimeMs = audioRef.current.currentTime * 1000;
+
+    // Find current verse based on timestamp
+    const currentTiming = chapterAudio.verse_timings.find(
+      (timing) =>
+        currentTimeMs >= timing.timestamp_from &&
+        currentTimeMs < timing.timestamp_to
+    );
+
+    if (currentTiming) {
+      setCurrentPlayingVerse(currentTiming.verse_key);
+
+      // Find current word within the verse
+      // Filter out incomplete segments (those with only 1 element)
+      const validSegments = currentTiming.segments.filter(
+        (seg) => seg.length === 3
+      );
+
+      const currentSegment = validSegments.find(
+        (seg) => currentTimeMs >= seg[1] && currentTimeMs < seg[2]
+      );
+
+      if (currentSegment) {
+        setCurrentWordPosition(currentSegment[0]);
+      } else {
+        setCurrentWordPosition(-1);
+      }
+    } else {
+      setCurrentPlayingVerse(null);
+      setCurrentWordPosition(-1);
+    }
+
+    if (audioRef.current && !audioRef.current.paused) {
+      animationFrameRef.current = requestAnimationFrame(updateHighlight);
+    }
+  }, [chapterAudio]);
+
+  const playFromVerse = useCallback(
+    (verseKey: string | null) => {
+      if (!chapterAudio) return;
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      const audio = new Audio(chapterAudio.audio_url);
+      audioRef.current = audio;
+
+      // If a specific verse is requested, seek to its start time
+      if (verseKey) {
+        const timing = chapterAudio.verse_timings.find(
+          (t) => t.verse_key === verseKey
+        );
+        if (timing) {
+          audio.currentTime = timing.timestamp_from / 1000;
+        }
+      }
+
+      audio.onplay = () => {
+        setIsPlaying(true);
+        animationFrameRef.current = requestAnimationFrame(updateHighlight);
+      };
+
+      audio.onpause = () => {
+        setIsPlaying(false);
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+      };
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        setCurrentPlayingVerse(null);
+        setCurrentWordPosition(-1);
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+      };
+
+      audio.onerror = () => {
+        console.error("Audio error");
+        setIsPlaying(false);
+        setCurrentPlayingVerse(null);
+        setCurrentWordPosition(-1);
+      };
+
+      audio.play();
+    },
+    [chapterAudio, updateHighlight]
+  );
+
+  const togglePlayPause = () => {
+    if (!chapterAudio) return;
+
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
+    } else if (audioRef.current && !isPlaying) {
+      audioRef.current.play();
+      animationFrameRef.current = requestAnimationFrame(updateHighlight);
+    } else {
+      // Start from beginning
+      playFromVerse(null);
+    }
+  };
+
+  const playSingleVerse = (verseKey: string) => {
+    if (!chapterAudio) return;
+
+    const timing = chapterAudio.verse_timings.find(
+      (t) => t.verse_key === verseKey
+    );
+    if (!timing) return;
 
     if (audioRef.current) {
       audioRef.current.pause();
     }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
 
-    const audio = new Audio(verse.audio.url);
+    const audio = new Audio(chapterAudio.audio_url);
     audioRef.current = audio;
-    setCurrentPlayingVerse(verse.verse_number);
+    audio.currentTime = timing.timestamp_from / 1000;
 
-    audio.play();
+    const checkEnd = () => {
+      if (audio.currentTime * 1000 >= timing.timestamp_to) {
+        audio.pause();
+        setIsPlaying(false);
+        setCurrentPlayingVerse(null);
+        setCurrentWordPosition(-1);
+      }
+    };
+
+    audio.ontimeupdate = checkEnd;
+
+    audio.onplay = () => {
+      setIsPlaying(true);
+      animationFrameRef.current = requestAnimationFrame(updateHighlight);
+    };
+
+    audio.onpause = () => {
+      setIsPlaying(false);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
 
     audio.onended = () => {
-      // Use ref to check current state
-      if (isPlayingAllRef.current && verseIndex < currentVerses.length - 1) {
-        // Continue to next verse
-        playVerseAtIndex(verseIndex + 1);
-      } else {
-        setCurrentPlayingVerse(null);
-        setIsPlayingAll(false);
-      }
-    };
-
-    audio.onerror = () => {
-      console.error("Audio error for verse", verseIndex);
-      // Try to continue to next verse if playing all
-      if (isPlayingAllRef.current && verseIndex < currentVerses.length - 1) {
-        playVerseAtIndex(verseIndex + 1);
-      } else {
-        setCurrentPlayingVerse(null);
-        setIsPlayingAll(false);
-      }
-    };
-  }, []);
-
-  const playSingleVerse = (verseNumber: number) => {
-    // Stop continuous playback mode
-    isPlayingAllRef.current = false;
-    setIsPlayingAll(false);
-
-    const verseIndex = verses.findIndex((v) => v.verse_number === verseNumber);
-    if (verseIndex !== -1) {
-      playVerseAtIndex(verseIndex);
-    }
-  };
-
-  const playAllVerses = () => {
-    if (isPlayingAll) {
-      // Stop playing
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      isPlayingAllRef.current = false;
-      setIsPlayingAll(false);
+      setIsPlaying(false);
       setCurrentPlayingVerse(null);
-    } else {
-      // Start playing from beginning
-      isPlayingAllRef.current = true;
-      setIsPlayingAll(true);
-      playVerseAtIndex(0);
-    }
+      setCurrentWordPosition(-1);
+    };
+
+    audio.play();
   };
 
   const stopPlaying = () => {
@@ -388,9 +504,12 @@ function SurahViewer({
       audioRef.current.pause();
       audioRef.current = null;
     }
-    isPlayingAllRef.current = false;
-    setIsPlayingAll(false);
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    setIsPlaying(false);
     setCurrentPlayingVerse(null);
+    setCurrentWordPosition(-1);
   };
 
   if (loading) {
@@ -408,20 +527,18 @@ function SurahViewer({
     <div className="space-y-4">
       {chapterInfo && (
         <div className="mb-6 text-center">
-          <h1
-            className="font-arabic mb-4 text-4xl leading-relaxed font-bold"
-            dir="rtl"
-          >
+          <h1 className="mb-4 text-4xl leading-relaxed font-bold" dir="rtl">
             سُورَةُ {chapterInfo.name_arabic}
           </h1>
           <div className="flex items-center justify-end gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={playAllVerses}
+              onClick={togglePlayPause}
               className="gap-2"
+              disabled={!chapterAudio}
             >
-              {isPlayingAll ? (
+              {isPlaying ? (
                 <>
                   <Pause className="h-4 w-4" />
                   Pause Surah
@@ -433,7 +550,7 @@ function SurahViewer({
                 </>
               )}
             </Button>
-            {(isPlayingAll || currentPlayingVerse) && (
+            {(isPlaying || currentPlayingVerse) && (
               <Button variant="outline" size="sm" onClick={stopPlaying}>
                 <Square className="h-4 w-4" />
               </Button>
@@ -442,54 +559,78 @@ function SurahViewer({
         </div>
       )}
 
-      {verses.map((v) => (
-        <Card
-          key={v.id}
-          className={`py-4 transition-colors ${
-            currentPlayingVerse === v.verse_number
-              ? "border-primary bg-primary/5"
-              : ""
-          }`}
-        >
-          <CardContent className="space-y-3 p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-sm font-medium">
-                  {v.verse_key}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => playSingleVerse(v.verse_number)}
-                  disabled={!v.audio?.url}
+      {verses.map((v) => {
+        const isCurrentVerse = currentPlayingVerse === v.verse_key;
+        // Filter words to only include actual words (not end markers)
+        const displayWords =
+          v.words?.filter((w) => w.char_type_name !== "end") || [];
+
+        return (
+          <Card
+            key={v.id}
+            className={`py-4 transition-colors ${
+              isCurrentVerse ? "border-primary bg-primary/5" : ""
+            }`}
+          >
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground text-sm font-medium">
+                    {v.verse_key}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => playSingleVerse(v.verse_key)}
+                    disabled={!chapterAudio}
+                  >
+                    {isCurrentVerse && isPlaying ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p
+                  className="flex-1 text-right text-2xl leading-[2.5]"
+                  dir="rtl"
+                  style={{ fontFamily: "Traditional Arabic, serif" }}
                 >
-                  {currentPlayingVerse === v.verse_number ? (
-                    <Pause className="h-4 w-4" />
+                  {displayWords.length > 0 ? (
+                    <>
+                      {displayWords.map((word) => (
+                        <span
+                          key={word.id}
+                          className={`transition-all duration-150 ${
+                            isCurrentVerse &&
+                            currentWordPosition === word.position
+                              ? "bg-primary text-primary-foreground rounded px-1"
+                              : ""
+                          }`}
+                        >
+                          {word.text_uthmani}{" "}
+                        </span>
+                      ))}
+                    </>
                   ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                </Button>
+                    v.text_uthmani
+                  )}{" "}
+                  <span className="text-muted-foreground inline-block text-xl">
+                    ﴿{toArabicNumber(v.verse_number)}﴾
+                  </span>
+                </p>
               </div>
-              <p
-                className="font-arabic flex-1 text-right text-2xl leading-[2.5]"
-                dir="rtl"
-              >
-                {v.text_uthmani}{" "}
-                <span className="text-muted-foreground inline-block text-xl">
-                  ﴿{toArabicNumber(v.verse_number)}﴾
-                </span>
-              </p>
-            </div>
-            {v.translations?.[0]?.text && (
-              <p
-                className="text-muted-foreground border-t pt-3 text-sm"
-                dangerouslySetInnerHTML={{ __html: v.translations[0].text }}
-              />
-            )}
-          </CardContent>
-        </Card>
-      ))}
+              {v.translations?.[0]?.text && (
+                <p
+                  className="text-muted-foreground border-t pt-3 text-sm"
+                  dangerouslySetInnerHTML={{ __html: v.translations[0].text }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
