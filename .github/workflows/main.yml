@@ -186,7 +186,7 @@ jobs:
       - name: Update Android Icons
         run: |
           echo "Regenerating Android icons with latest logo..."
-          npx tauri icon public/logo.png
+          npx tauri icon public/icon512_maskable.png
           echo "Android icons updated successfully!"
 
       - name: Update Android Theme
