@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/footer";
 import Header from "./components/header";
+import { PWAInstallPrompt } from "./components/pwa-install-prompt";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { HomePage, SurahPage } from "./pages";
@@ -33,6 +34,7 @@ function App() {
               <Footer />
               <Toaster />
             </main>
+            <PWAInstallPrompt />
           </div>
         </BrowserRouter>
       </ThemeProvider>
