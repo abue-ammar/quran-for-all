@@ -276,6 +276,8 @@ function SurahViewer({
   const [currentWordPosition, setCurrentWordPosition] = useState<number>(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const verseRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const lastScrolledVerseRef = useRef<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -336,6 +338,26 @@ function SurahViewer({
       }
     };
   }, []);
+
+  // Auto-scroll to current verse
+  useEffect(() => {
+    if (
+      currentPlayingVerse &&
+      currentPlayingVerse !== lastScrolledVerseRef.current
+    ) {
+      const verseElement = verseRefs.current.get(currentPlayingVerse);
+      if (verseElement) {
+        verseElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        lastScrolledVerseRef.current = currentPlayingVerse;
+      }
+    }
+    if (!currentPlayingVerse) {
+      lastScrolledVerseRef.current = null;
+    }
+  }, [currentPlayingVerse]);
 
   const updateHighlight = useCallback(() => {
     if (!audioRef.current || !chapterAudio) return;
@@ -568,6 +590,13 @@ function SurahViewer({
         return (
           <Card
             key={v.id}
+            ref={(el) => {
+              if (el) {
+                verseRefs.current.set(v.verse_key, el);
+              } else {
+                verseRefs.current.delete(v.verse_key);
+              }
+            }}
             className={`py-4 transition-colors ${
               isCurrentVerse ? "border-primary bg-primary/5" : ""
             }`}
