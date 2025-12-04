@@ -1,5 +1,5 @@
 // Cache version - auto-updated during build
-const CACHE_VERSION = "1.0.0-20251204.1828";
+const CACHE_VERSION = "1.0.0-20251204.1924";
 const CACHE_NAME = `quran-for-all-v${CACHE_VERSION}`;
 
 const STATIC_CACHE_URLS = [
@@ -8,10 +8,9 @@ const STATIC_CACHE_URLS = [
   "/offline.html",
   "/manifest.json",
   "/logo.svg",
-  "/icon180_apple.png",
-  "/icon512_maskable.png",
-  "/icon512_rounded.png",
-  "/icon192_rounded.png",
+  "/icon-180.png",
+  "/icon-512.png",
+  "/icon-192.png",
   "/og.png",
   "/fonts/AmiriQuran-Regular.ttf",
   "/fonts/RobotoMono-VariableFont_wght.ttf",
