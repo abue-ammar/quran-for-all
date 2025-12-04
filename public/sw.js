@@ -11,6 +11,7 @@ const STATIC_CACHE_URLS = [
   "/icon180_apple.png",
   "/icon512_maskable.png",
   "/icon512_rounded.png",
+  "/icon192_rounded.png",
   "/og.png",
   "/fonts/AmiriQuran-Regular.ttf",
   "/fonts/RobotoMono-VariableFont_wght.ttf",
