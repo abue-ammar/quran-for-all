@@ -147,7 +147,7 @@ export default function QuranTabs() {
 
   if (selectedSurah) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
+      <div className="mx-auto max-w-4xl">
         <Button
           variant="outline"
           onClick={() => setSelectedSurah(null)}
@@ -162,8 +162,8 @@ export default function QuranTabs() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <div className="mb-6 flex items-center gap-3">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-4 flex items-center gap-3">
         <span className="text-muted-foreground text-sm font-medium">
           Language:
         </span>
@@ -194,7 +194,7 @@ export default function QuranTabs() {
         </TabsList>
 
         <TabsContent value="surah" className="mt-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {chapters.map((c) => (
               <Card
                 key={c.id}

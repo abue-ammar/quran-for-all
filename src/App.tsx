@@ -7,9 +7,9 @@ import { Toaster } from "./components/ui/sonner";
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex h-screen flex-col overflow-hidden">
+      <div className="flex h-screen flex-col overflow-auto">
         <Header />
-        <main className="container mx-auto flex-1 overflow-y-auto px-4">
+        <main className="container mx-auto flex-1 p-4">
           <QuranTabs />
           <Footer />
           <Toaster />

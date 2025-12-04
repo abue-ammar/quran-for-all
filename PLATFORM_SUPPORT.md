@@ -1,6 +1,6 @@
 # Mobile and Cross-Platform Support
 
-This image compressor app now supports multiple platforms:
+This quran for all app now supports multiple platforms:
 
 ## Supported Platforms
 
