@@ -78,7 +78,7 @@ export function VerseCard({
           <p
             className="flex-1 text-right text-2xl leading-[2]"
             dir="rtl"
-            style={{ fontFamily: "Traditional Arabic, serif" }}
+            style={{ fontFamily: "var(--font-arabic)" }}
           >
             {displayWords.length > 0 ? (
               <>
@@ -87,7 +87,7 @@ export function VerseCard({
                     key={word.id}
                     className={`transition-all duration-150 ${
                       isCurrentVerse && currentWordPosition === word.position
-                        ? "bg-primary text-primary-foreground rounded-md p-2 pr-1.5 pl-0.5"
+                        ? "bg-primary text-primary-foreground rounded-md pr-2 pb-2"
                         : ""
                     }`}
                   >

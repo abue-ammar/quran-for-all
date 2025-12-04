@@ -104,11 +104,11 @@ export function SurahPage() {
     <div className="quran-fade-in mx-auto max-w-4xl">
       <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
 
-      <div className="mb-6 text-center">
-        <h1 className="mb-2 text-4xl leading-relaxed font-bold" dir="rtl">
+      <div className="mb-4 text-center">
+        <h1 className="text-4xl leading-relaxed font-bold" dir="rtl">
           سُورَةُ {chapter.name_arabic}
         </h1>
-        <p className="text-muted-foreground mb-4 text-lg">
+        <p className="text-muted-foreground mb-6 text-lg">
           {chapter.name_simple}
           {chapter.translated_name?.name &&
             chapter.translated_name.name !== chapter.name_simple &&

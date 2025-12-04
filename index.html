@@ -81,28 +81,13 @@
       type="font/ttf"
       crossorigin
     />
-
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Quran For All",
-        "description": "Free and open-source Quran application with 100+ translations, word-by-word highlighting, and audio recitation.",
-        "url": "https://quran-for-all.vercel.app/",
-        "applicationCategory": "ReligiousApplication",
-        "operatingSystem": "Any",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "Abue Ammar"
-        }
-      }
-    </script>
+    <link
+      rel="preload"
+      href="/fonts/AmiriQuran-Regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
   </head>
   <body>
     <div id="root"></div>
