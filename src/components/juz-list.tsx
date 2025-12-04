@@ -41,7 +41,7 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
               <CardTitle className="text-base">Juz {juz.juz_number}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {chapIds.map((id) => {
                   const chapter = chapters.find((x) => x.id === id);
                   return (
