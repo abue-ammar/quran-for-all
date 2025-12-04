@@ -54,12 +54,17 @@ export function HomePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4 p-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-12 w-full" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mx-auto w-full max-w-4xl space-y-4">
+        {/* Language selector skeleton */}
+        <div className="mb-4 flex items-center gap-4 md:justify-end">
+          <Skeleton className="h-9 w-full md:w-[220px]" />
+        </div>
+        {/* Tabs skeleton */}
+        <Skeleton className="h-9 w-[120px] rounded-lg" />
+        {/* Cards skeleton */}
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full" />
+            <Skeleton key={i} className="h-[76px] w-full rounded-xl" />
           ))}
         </div>
       </div>
@@ -68,7 +73,7 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
+      <div className="mx-auto max-w-4xl p-4">
         <Card className="border-destructive bg-destructive/10">
           <CardContent className="pt-4">
             <p className="text-destructive">
