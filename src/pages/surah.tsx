@@ -124,7 +124,7 @@ export function SurahPage() {
 
       <div className="mb-4 text-center">
         <h1
-          className="text-4xl leading-relaxed font-bold"
+          className="text-5xl leading-relaxed font-bold"
           dir="rtl"
           style={{ fontFamily: "var(--font-arabic)" }}
         >

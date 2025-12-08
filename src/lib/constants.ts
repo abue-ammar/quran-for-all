@@ -22,19 +22,20 @@ export const LANGUAGES: LanguageOption[] = [
     translatorName: "Saheeh International",
   },
   {
-    code: "ur",
-    name: "Urdu",
-    nativeName: "اردو",
-    translationId: 97,
-    translatorName: "Fateh Muhammad Jalandhry",
-  },
-  {
     code: "bn",
     name: "Bengali",
     nativeName: "বাংলা",
     translationId: 161,
     translatorName: "Muhiuddin Khan",
   },
+  {
+    code: "ur",
+    name: "Urdu",
+    nativeName: "اردو",
+    translationId: 97,
+    translatorName: "Fateh Muhammad Jalandhry",
+  },
+
   {
     code: "tr",
     name: "Turkish",
