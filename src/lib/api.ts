@@ -76,9 +76,9 @@ export async function fetchVersesByChapter(
   url.searchParams.set("translations", translationId.toString());
   url.searchParams.set("per_page", perPage.toString());
   url.searchParams.set("page", page.toString());
-  url.searchParams.set("fields", "text_uthmani,verse_key");
+  url.searchParams.set("fields", "text_indopak,verse_key");
   url.searchParams.set("words", "true");
-  url.searchParams.set("word_fields", "text_uthmani,char_type_name");
+  url.searchParams.set("word_fields", "text_indopak,char_type_name");
 
   return fetchApi<VersesResponse>(url.toString());
 }

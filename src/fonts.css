@@ -1,10 +1,10 @@
-/* Amiri Quran - Arabic font for Quranic text */
+/* Indopak Nastaleeq - Arabic font for Quranic text */
 @font-face {
-  font-family: "Amiri Quran";
+  font-family: "Indopak Nastaleeq";
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/fonts/AmiriQuran-Regular.ttf") format("truetype");
+  src: url("/fonts/IndopakNastaleeq.woff2") format("woff2");
 }
 
 @font-face {

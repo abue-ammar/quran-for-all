@@ -36,9 +36,9 @@ export type Translation = {
 export type Word = {
   id: number;
   position: number;
-  text_uthmani: string;
+  text_indopak: string;
+  text_uthmani?: string;
   text_imlaei?: string;
-  text_indopak?: string;
   char_type_name: "word" | "end" | "pause";
   audio_url?: string;
   location?: string;
@@ -64,7 +64,8 @@ export type Verse = {
   sajdah_number: number | null;
   page_number: number;
   juz_number: number;
-  text_uthmani: string;
+  text_indopak: string;
+  text_uthmani?: string;
   text_imlaei?: string;
   words?: Word[];
   translations?: Translation[];

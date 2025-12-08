@@ -99,14 +99,19 @@ export function VerseCard({
                         : ""
                     }`}
                   >
-                    {word.text_uthmani}{" "}
+                    {word.text_indopak}{" "}
                   </span>
                 ))}
               </>
             ) : (
-              verse.text_uthmani
+              verse.text_indopak
             )}{" "}
-            <span className="text-muted-foreground inline-block text-xl">
+            <span
+              className="text-muted-foreground inline-block text-xl"
+              style={{
+                fontFamily: '"Noto Naskh Arabic", "Traditional Arabic", serif',
+              }}
+            >
               ﴿{toArabicNumber(verse.verse_number)}﴾
             </span>
           </p>

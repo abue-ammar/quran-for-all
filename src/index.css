@@ -170,7 +170,7 @@ html {
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
-  --font-arabic: "Amiri Quran", "Traditional Arabic", serif;
+  --font-arabic: "Indopak Nastaleeq", "Traditional Arabic", serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
