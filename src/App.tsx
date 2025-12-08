@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BackToTop } from "./components/back-to-top";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt";
@@ -35,6 +36,7 @@ function App() {
               <Toaster />
             </main>
             <PWAInstallPrompt />
+            <BackToTop />
           </div>
         </BrowserRouter>
       </ThemeProvider>

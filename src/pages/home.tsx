@@ -1,6 +1,7 @@
 import { JuzList } from "@/components/juz-list";
 import { LanguageSelector } from "@/components/language-selector";
 import { SurahList } from "@/components/surah-list";
+import { SurahSearch } from "@/components/surah-search";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,8 @@ import {
   getSavedLanguageCode,
   saveLanguageCode,
 } from "@/lib/constants";
-import { useEffect, useState } from "react";
+import type { Chapter } from "@/types";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export function HomePage() {
@@ -19,6 +21,7 @@ export function HomePage() {
   const langParam = searchParams.get("lang");
 
   const [activeTab, setActiveTab] = useState("surah");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get language code from URL or localStorage
   const [languageCode, setLanguageCode] = useState<string>(() => {
@@ -46,6 +49,27 @@ export function HomePage() {
     setSearchParams({ lang: newCode });
   };
 
+  // Filter chapters based on search query
+  const filteredChapters = useMemo(() => {
+    if (!chapters || !searchQuery.trim()) {
+      return chapters;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return chapters.filter((chapter: Chapter) => {
+      const nameSimple = chapter.name_simple?.toLowerCase() || "";
+      const nameArabic = chapter.name_arabic || "";
+      const translatedName = chapter.translated_name?.name?.toLowerCase() || "";
+
+      return (
+        nameSimple.includes(query) ||
+        nameArabic.includes(query) ||
+        translatedName.includes(query)
+      );
+    });
+  }, [chapters, searchQuery]);
+
   const loading = chaptersLoading || juzsLoading;
   const error = chaptersError || juzsError;
 
@@ -55,15 +79,16 @@ export function HomePage() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-4xl space-y-4">
-        {/* Language selector skeleton */}
-        <div className="mb-4 flex items-center gap-4 md:justify-end">
-          <Skeleton className="h-9 w-full md:w-[220px]" />
+        {/* Search and language selector skeleton */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Skeleton className="h-9 w-full sm:flex-[3]" />
+          <Skeleton className="h-9 w-full sm:flex-1" />
         </div>
         {/* Tabs skeleton */}
         <Skeleton className="h-9 w-[120px] rounded-lg" />
         {/* Cards skeleton */}
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 18 }).map((_, i) => (
             <Skeleton key={i} className="h-[76px] w-full rounded-xl" />
           ))}
         </div>
@@ -87,11 +112,21 @@ export function HomePage() {
 
   return (
     <div className="quran-fade-in mx-auto w-full max-w-4xl">
-      <div className="mb-4">
-        <LanguageSelector
-          value={languageCode}
-          onChange={handleLanguageChange}
-        />
+      {/* Search bar (3/4) and Language selector (1/4) */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="sm:flex-[3]">
+          <SurahSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search surah by name..."
+          />
+        </div>
+        <div className="sm:flex-1">
+          <LanguageSelector
+            value={languageCode}
+            onChange={handleLanguageChange}
+          />
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -101,13 +136,22 @@ export function HomePage() {
         </TabsList>
 
         <TabsContent value="surah" className="mt-4">
-          {chapters && (
+          {filteredChapters && filteredChapters.length > 0 ? (
             <SurahList
-              chapters={chapters}
+              chapters={filteredChapters}
               languageCode={languageCode}
               translationId={currentLanguage.translationId}
+              searchQuery={searchQuery}
             />
-          )}
+          ) : searchQuery ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">
+                  No surahs found for "{searchQuery}"
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
         </TabsContent>
 
         <TabsContent value="juz" className="mt-4">
@@ -117,6 +161,7 @@ export function HomePage() {
               chapters={chapters}
               languageCode={languageCode}
               translationId={currentLanguage.translationId}
+              searchQuery={searchQuery}
             />
           )}
         </TabsContent>

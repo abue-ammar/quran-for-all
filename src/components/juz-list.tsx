@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Chapter, Juz } from "@/types";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 type JuzListProps = {
@@ -8,6 +9,7 @@ type JuzListProps = {
   chapters: Chapter[];
   languageCode: string;
   translationId: number;
+  searchQuery?: string;
 };
 
 function getChapterIdsForJuz(juz: Juz): number[] {
@@ -20,17 +22,82 @@ function getChapterIdsForJuz(juz: Juz): number[] {
   return Array.from(ids).sort((a, b) => a - b);
 }
 
-export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
+function matchesSearch(chapter: Chapter, query: string): boolean {
+  if (!query.trim()) return true;
+
+  const q = query.toLowerCase().trim();
+  const nameSimple = chapter.name_simple?.toLowerCase() || "";
+  const nameArabic = chapter.name_arabic || "";
+  const translatedName = chapter.translated_name?.name?.toLowerCase() || "";
+
+  return (
+    nameSimple.includes(q) ||
+    nameArabic.includes(q) ||
+    translatedName.includes(q)
+  );
+}
+
+export function JuzList({
+  juzs,
+  chapters,
+  languageCode,
+  searchQuery = "",
+}: JuzListProps) {
   const navigate = useNavigate();
 
   const handleChapterClick = (chapterId: number) => {
     navigate(`/surah/${chapterId}?lang=${languageCode}`);
   };
 
+  // Filter juzs to only show those with matching chapters
+  const filteredJuzs = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return juzs.map((juz) => ({
+        juz,
+        filteredChapIds: getChapterIdsForJuz(juz),
+      }));
+    }
+
+    return juzs
+      .map((juz) => {
+        const chapIds = getChapterIdsForJuz(juz);
+        const filteredChapIds = chapIds.filter((id) => {
+          const chapter = chapters.find((x) => x.id === id);
+          return chapter && matchesSearch(chapter, searchQuery);
+        });
+        return { juz, filteredChapIds };
+      })
+      .filter(({ filteredChapIds }) => filteredChapIds.length > 0);
+  }, [juzs, chapters, searchQuery]);
+
+  if (filteredJuzs.length === 0 && searchQuery) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p className="text-muted-foreground">
+            No surahs found for "{searchQuery}"
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Calculate total matching surahs across all filtered Juzs
+  const uniqueMatchingSurahs = new Set<number>();
+  filteredJuzs.forEach(({ filteredChapIds }) => {
+    filteredChapIds.forEach((id) => uniqueMatchingSurahs.add(id));
+  });
+  const totalMatching = uniqueMatchingSurahs.size;
+
   return (
     <div className="space-y-4">
-      {juzs.map((juz, juzIndex) => {
-        const chapIds = getChapterIdsForJuz(juz);
+      {searchQuery && (
+        <p className="text-muted-foreground text-sm">
+          Found {totalMatching} surah{totalMatching !== 1 ? "s" : ""} matching "
+          {searchQuery}"
+        </p>
+      )}
+      {filteredJuzs.map(({ juz, filteredChapIds }, juzIndex) => {
         return (
           <Card
             key={`juz-${juz.juz_number}-${juzIndex}`}
@@ -42,7 +109,7 @@ export function JuzList({ juzs, chapters, languageCode }: JuzListProps) {
             </CardHeader>
             <CardContent className="p-0">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {chapIds.map((id) => {
+                {filteredChapIds.map((id) => {
                   const chapter = chapters.find((x) => x.id === id);
                   return (
                     <Button

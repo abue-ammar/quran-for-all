@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { toArabicNumber } from "@/lib/helpers";
 import type { Verse } from "@/types";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -47,6 +46,9 @@ export function VerseCard({
   const displayWords =
     verse.words?.filter((w) => w.char_type_name !== "end") || [];
 
+  // Get the end marker (verse number in Arabic) from words array
+  const endMarker = verse.words?.find((w) => w.char_type_name === "end");
+
   return (
     <Card
       ref={cardRef}
@@ -84,7 +86,7 @@ export function VerseCard({
             </Button>
           </div>
           <p
-            className="flex-1 text-right text-2xl leading-[3]"
+            className="flex-1 text-right text-3xl leading-relaxed md:text-4xl"
             dir="rtl"
             style={{ fontFamily: "var(--font-arabic)" }}
           >
@@ -95,20 +97,22 @@ export function VerseCard({
                     key={word.id}
                     className={`transition-all duration-150 ${
                       isCurrentVerse && currentWordPosition === word.position
-                        ? "bg-primary text-primary-foreground rounded-md pr-2 pb-2"
+                        ? "text-violet-600 dark:text-violet-400"
                         : ""
                     }`}
                   >
-                    {word.text_uthmani}{" "}
+                    {word.text_indopak}{" "}
                   </span>
                 ))}
               </>
             ) : (
-              verse.text_uthmani
+              verse.text_indopak
             )}{" "}
-            <span className="text-muted-foreground inline-block text-xl">
-              ﴿{toArabicNumber(verse.verse_number)}﴾
-            </span>
+            {endMarker && (
+              <span className="text-muted-foreground inline-block text-3xl md:text-4xl">
+                ۟{endMarker.text_indopak}
+              </span>
+            )}
           </p>
         </div>
         {verse.translations?.[0]?.text && (

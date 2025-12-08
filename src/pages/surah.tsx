@@ -123,7 +123,11 @@ export function SurahPage() {
       <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
 
       <div className="mb-4 text-center">
-        <h1 className="text-4xl leading-relaxed font-bold" dir="rtl">
+        <h1
+          className="text-5xl leading-relaxed font-bold"
+          dir="rtl"
+          style={{ fontFamily: "var(--font-arabic)" }}
+        >
           سُورَةُ {chapter.name_arabic}
         </h1>
         <p className="text-muted-foreground mb-6 text-lg">
