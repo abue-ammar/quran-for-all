@@ -86,7 +86,7 @@ export function VerseCard({
             </Button>
           </div>
           <p
-            className="flex-1 text-right text-3xl leading-[1.6] md:text-4xl"
+            className="flex-1 text-right text-3xl leading-relaxed md:text-4xl"
             dir="rtl"
             style={{ fontFamily: "var(--font-arabic)" }}
           >

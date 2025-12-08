@@ -12,7 +12,7 @@ const STATIC_CACHE_URLS = [
   "/icon-512.png",
   "/icon-192.png",
   "/og.png",
-  "/fonts/AmiriQuran-Regular.ttf",
+  "/fonts/IndopakNastaleeq.woff2",
   "/fonts/RobotoMono-VariableFont_wght.ttf",
 ];
 
