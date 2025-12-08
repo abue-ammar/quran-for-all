@@ -47,7 +47,16 @@ export function useJuzs() {
     queryFn: fetchJuzs,
     staleTime: 1000 * 60 * 60, // 1 hour - juzs data rarely changes
     gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
-    select: (data) => data.juzs,
+    select: (data) => {
+      // Deduplicate juzs by juz_number (API returns duplicates)
+      const uniqueJuzs = new Map();
+      data.juzs.forEach((juz) => {
+        if (!uniqueJuzs.has(juz.juz_number)) {
+          uniqueJuzs.set(juz.juz_number, juz);
+        }
+      });
+      return Array.from(uniqueJuzs.values());
+    },
   });
 }
 
