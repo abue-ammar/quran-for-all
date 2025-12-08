@@ -82,8 +82,21 @@ export function JuzList({
     );
   }
 
+  // Calculate total matching surahs across all filtered Juzs
+  const uniqueMatchingSurahs = new Set<number>();
+  filteredJuzs.forEach(({ filteredChapIds }) => {
+    filteredChapIds.forEach((id) => uniqueMatchingSurahs.add(id));
+  });
+  const totalMatching = uniqueMatchingSurahs.size;
+
   return (
     <div className="space-y-4">
+      {searchQuery && (
+        <p className="text-muted-foreground text-sm">
+          Found {totalMatching} surah{totalMatching !== 1 ? "s" : ""} matching "
+          {searchQuery}"
+        </p>
+      )}
       {filteredJuzs.map(({ juz, filteredChapIds }, juzIndex) => {
         return (
           <Card

@@ -141,6 +141,7 @@ export function HomePage() {
               chapters={filteredChapters}
               languageCode={languageCode}
               translationId={currentLanguage.translationId}
+              searchQuery={searchQuery}
             />
           ) : searchQuery ? (
             <Card>
