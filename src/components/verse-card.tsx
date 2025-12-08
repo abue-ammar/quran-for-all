@@ -97,7 +97,7 @@ export function VerseCard({
                     key={word.id}
                     className={`transition-all duration-150 ${
                       isCurrentVerse && currentWordPosition === word.position
-                        ? "bg-primary text-primary-foreground rounded-md pr-2 pb-2"
+                        ? "text-violet-600 dark:text-violet-400"
                         : ""
                     }`}
                   >
