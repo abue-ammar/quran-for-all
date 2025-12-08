@@ -160,6 +160,7 @@ export function HomePage() {
               chapters={chapters}
               languageCode={languageCode}
               translationId={currentLanguage.translationId}
+              searchQuery={searchQuery}
             />
           )}
         </TabsContent>
