@@ -88,7 +88,7 @@ export function HomePage() {
         <Skeleton className="h-9 w-[120px] rounded-lg" />
         {/* Cards skeleton */}
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 18 }).map((_, i) => (
             <Skeleton key={i} className="h-[76px] w-full rounded-xl" />
           ))}
         </div>
