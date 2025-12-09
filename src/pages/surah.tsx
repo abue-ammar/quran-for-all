@@ -88,7 +88,7 @@ export function SurahPage() {
         </div>
         {/* Surah title skeleton */}
         <div className="mb-4 space-y-2 text-center">
-          <Skeleton className="mx-auto h-12 w-64" />
+          <Skeleton className="mx-auto h-16 w-64" />
           <Skeleton className="mx-auto h-6 w-48" />
         </div>
         {/* Action buttons skeleton */}
@@ -120,7 +120,12 @@ export function SurahPage() {
 
   return (
     <div className="quran-fade-in mx-auto w-full max-w-4xl">
-      <LanguageSelector value={languageCode} onChange={handleLanguageChange} />
+      <div className="mb-4 flex items-center gap-4 md:justify-end">
+        <LanguageSelector
+          value={languageCode}
+          onChange={handleLanguageChange}
+        />
+      </div>
 
       <div className="mb-4 text-center">
         <h1
