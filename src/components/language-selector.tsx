@@ -17,7 +17,7 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
 
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full md:w-[220px]">
         <SelectValue>
           {selectedLanguage
             ? `${selectedLanguage.name} (${selectedLanguage.nativeName})`
